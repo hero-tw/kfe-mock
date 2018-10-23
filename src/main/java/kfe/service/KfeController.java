@@ -1,4 +1,4 @@
-package kfe;
+package kfe.service;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
