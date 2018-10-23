@@ -1,64 +1,103 @@
 buildscript {
+    ext {
+        springBootVersion = '2.0.5.RELEASE'
+
+    }
     repositories {
         mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.13.0')
+        classpath("org.springframework.boot:spring-boot-starter-actuator:2.0.5.RELEASE")
+        classpath('org.projectlombok:lombok:1.18.2')
+        classpath('org.owasp:dependency-check-gradle:3.3.2')
     }
+
 }
+
+plugins {
+    id "net.foragerr.jmeter" version "1.0.10-3.3"
+    id 'com.github.eerohele.saxon-gradle' version '0.6.0'
+}
+
+ext['mockito.version'] = '2.19.1'
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.palantir.docker'
+apply plugin: 'jacoco'
+apply plugin: 'findbugs'
+apply plugin: 'org.owasp.dependencycheck'
 
-bootJar {
-    baseName = 'gs-spring-boot'
-    version =  '0.1.0'
-}
+group = 'com.hero'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+ext {
+    springCloudVersion = 'Finchley.SR1'
+}
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile("junit:junit")
+
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.cloud:spring-cloud-starter-config')
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation('com.google.guava:guava:26.0-jre')
+    compileOnly('org.projectlombok:lombok:1.18.2')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+
+    //Transitive dependency clobbers for security updates:
+    implementation('com.google.protobuf:protobuf-java:2.6.1')
 }
 
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+
+dependencyCheck{
+    suppressionFile = file("$project.rootDir/etc/dependency-check-surpression.xml")
+    outputDirectory = file("$project.buildDir/reports/dependency-check")
+}
+bootRun {
+    jvmArgs = ["-Dspring.profiles.active=local"]
+}
 
 bootJar {
-    baseName = 'gs-spring-boot'
-    version =  '0.1.0'
+    classifier = 'boot'
 }
 
-repositories {
-    mavenCentral()
+docker {
+    name "${project.group}/${bootJar.baseName}"
+    files new File(project.buildDir, "libs/$project.name-$project.version-boot.jar")
+    buildArgs(
+            ['JAR': "$project.name-$project.version-boot.jar"
+//             'DATABASE_HOST': Optional.ofNullable(System.getenv("EID_DATABASE_HOST")).orElse(""),
+//             'DATABASE_USER': Optional.ofNullable(System.getenv("EID_DATABASE_USER")).orElse(""),
+//             'DATABASE_PASSWORD': Optional.ofNullable(System.getenv("EID_DATABASE_PASSWORD")).orElse("")
+            ])
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+tasks.clean.dependsOn(tasks.dockerClean)
+tasks.docker.dependsOn(tasks.bootJar)
+tasks.check.finalizedBy(tasks.jacocoTestReport)
 
-dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile("junit:junit")
-}
