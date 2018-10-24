@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: kfe-mock
-        image: 124837307879.dkr.ecr.us-east-1.amazonaws.com/com.hero/kfe-mock
+        image: 124837307879.dkr.ecr.us-east-1.amazonaws.com/com.hero/kfe-mock:BUILD_NUMBER
         ports:
         - containerPort: 8080
