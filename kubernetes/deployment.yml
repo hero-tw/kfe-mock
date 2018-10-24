@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kfe-mock-deployment
+spec:
+  selector:
+    matchLabels:
+      app: kfe-mock
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kfe-mock
+    spec:
+      containers:
+      - name: kfe-mock
+        image: 124837307879.dkr.ecr.us-east-1.amazonaws.com/com.hero/kfe-mock
+        ports:
+        - containerPort: 8080
