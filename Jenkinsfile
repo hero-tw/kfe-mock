@@ -14,8 +14,8 @@ pipeline {
     stage('Build') {
         steps {
             sh 'env'
-            echo  'bob'
             sh 'ls -lah'
+            echo  'bob'
         }
     }
     /*
