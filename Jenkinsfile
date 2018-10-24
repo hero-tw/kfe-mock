@@ -15,6 +15,7 @@ pipeline {
         steps {
             sh 'env'
             echo  'bob'
+            sh 'ls -lah'
         }
     }
     /*
