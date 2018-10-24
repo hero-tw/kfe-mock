@@ -1,4 +1,8 @@
 pipeline {
+  agent {
+      label 'autoscale'
+  }
+
   stages {
     stage('Init') {
         steps {
@@ -10,7 +14,7 @@ pipeline {
     stage('Build') {
         steps {
             sh 'env'
-            sh 'echo bob'
+            echo  'bob'
         }
     }
     /*
