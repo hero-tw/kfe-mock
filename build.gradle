@@ -87,14 +87,13 @@ bootJar {
 }
 
 docker {
-    name "${project.group}/${bootJar.baseName}"
+    name "124837307879.dkr.ecr.us-east-1.amazonaws.com/${project.group}/${bootJar.baseName}:"+
+            java.util.Optional.ofNullable(System.getenv('BUILD_NUMBER')).orElse("LOCAL")
     files new File(project.buildDir, "libs/$project.name-$project.version-boot.jar")
     buildArgs(
             ['JAR': "$project.name-$project.version-boot.jar"
-//             'DATABASE_HOST': Optional.ofNullable(System.getenv("EID_DATABASE_HOST")).orElse(""),
-//             'DATABASE_USER': Optional.ofNullable(System.getenv("EID_DATABASE_USER")).orElse(""),
-//             'DATABASE_PASSWORD': Optional.ofNullable(System.getenv("EID_DATABASE_PASSWORD")).orElse("")
             ])
+    tags "latest"
 }
 
 tasks.clean.dependsOn(tasks.dockerClean)
