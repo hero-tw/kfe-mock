@@ -9,6 +9,7 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.tomcat.jni.Local;
 
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -35,6 +36,10 @@ public class Identity {
     public Identity dateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
         return this;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
     public Identity stateIds(List<StateIdentification> stateIds) {
